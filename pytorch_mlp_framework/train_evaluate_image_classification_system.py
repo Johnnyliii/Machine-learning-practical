@@ -8,7 +8,7 @@ from pytorch_mlp_framework.arg_extractor import get_args
 from pytorch_mlp_framework.experiment_builder import ExperimentBuilder
 from pytorch_mlp_framework.model_architectures import *
 import os 
-# os.environ["CUDA_VISIBLE_DEVICES"]="0"
+#os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 args = get_args()  # get arguments from command line
 rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
@@ -47,6 +47,12 @@ if args.block_type == 'conv_block':
 elif args.block_type == 'empty_block':
     processing_block_type = EmptyBlock
     dim_reduction_block_type = EmptyBlock
+elif args.block_type == 'conv_block_bnorm':
+    processing_block_type = ConvolutionalProcessingBlockWithBN
+    dim_reduction_block_type = ConvolutionalDimensionalityReductionBlockWithBN
+elif args.block_type == 'conv_block_bn_rc':
+    processing_block_type = ConvolutionalProcessingBlockWithRC
+    dim_reduction_block_type = ConvolutionalDimensionalityReductionBlockWithBN
 else:
     raise ModuleNotFoundError
 
@@ -55,7 +61,8 @@ custom_conv_net = ConvolutionalNetwork(  # initialize our network object, in thi
     num_output_classes=args.num_classes, num_filters=args.num_filters, use_bias=False,
     num_blocks_per_stage=args.num_blocks_per_stage, num_stages=args.num_stages,
     processing_block_type=processing_block_type,
-    dimensionality_reduction_block_type=dim_reduction_block_type)
+    dimensionality_reduction_block_type=dim_reduction_block_type,
+    learning_rate = args.learning_rate)
 
 conv_experiment = ExperimentBuilder(network_model=custom_conv_net,
                                     experiment_name=args.experiment_name,
@@ -64,5 +71,6 @@ conv_experiment = ExperimentBuilder(network_model=custom_conv_net,
                                     use_gpu=args.use_gpu,
                                     continue_from_epoch=args.continue_from_epoch,
                                     train_data=train_data_loader, val_data=val_data_loader,
-                                    test_data=test_data_loader)  # build an experiment object
+                                    test_data=test_data_loader,
+                                    learning_rate = args.learning_rate)  # build an experiment object
 experiment_metrics, test_metrics = conv_experiment.run_experiment()  # run experiment and return experiment metrics
