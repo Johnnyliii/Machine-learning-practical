@@ -384,12 +384,14 @@ class ConvolutionalProcessingBlockWithBN(nn.Module):
         out = self.layer_dict['conv_0'].forward(out)
          #Batch Normalization
         batchnorm1 = nn.BatchNorm2d(out.shape[1])
+        batchnorm1 = batchnorm1.to(torch.device('cuda'))
         out = batchnorm1(out)
         out = F.leaky_relu(out)
 
         out = self.layer_dict['conv_1'].forward(out)
          #Batch Normalization
         batchnorm2 = nn.BatchNorm2d(out.shape[1])
+        batchnorm2 = batchnorm2.to(torch.device('cuda'))
         out = batchnorm2(out)
         out = F.leaky_relu(out)
 
