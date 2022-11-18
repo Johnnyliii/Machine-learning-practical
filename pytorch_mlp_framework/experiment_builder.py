@@ -173,7 +173,7 @@ class ExperimentBuilder(nn.Module):
         
         self.train()  # sets model to training mode (in case batch normalization or other methods have different procedures for training and evaluation)
         x, y = x.float().to(torch.device('cuda')), y.long().to(torch.device('cuda'))  # send data to device as torch tensors
-        out = self.model.forward(x)  # forward the data in the model
+        out = self.model.forward(x).to(torch.device('cuda'))  # forward the data in the model
 
 
         loss = F.cross_entropy(input=out, target=y)  # compute loss
